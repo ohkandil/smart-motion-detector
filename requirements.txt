@@ -1,0 +1,5 @@
+gpiozero
+pyzmq
+Adafruit-IO
+smtplib
+someipy
