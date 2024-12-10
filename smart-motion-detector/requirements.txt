@@ -1,0 +1,6 @@
+RPi.GPIO
+adafruit-io
+someip
+smtplib
+logging
+julius.ai (for the ai part)
