@@ -1,9 +1,9 @@
 import smtplib
 from email.mime.text import MIMEText
 import zmq
-
-EMAIL = "your_email@example.com"
-PASSWORD = "your_password"
+# email notifier tested with dummy data and it works.
+EMAIL = "iot450702@gmail.com"
+PASSWORD = "xign cwhh wjho bzyi"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
@@ -27,4 +27,9 @@ def notify_via_email():
     print("Email notifications enabled...")
     while True:
         event = socket.recv_json()
+        # event = {
+        #     'sensor': "testers"
+        # }
         send_email_notification(event)
+
+notify_via_email()

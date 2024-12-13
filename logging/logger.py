@@ -13,3 +13,4 @@ def log_events():
     while True:
         event = socket.recv_json()
         logging.info(f"Sensor {event['sensor']} - {event['state']}")
+        print(f"Sensor {event['sensor']} - {event['state']}")
