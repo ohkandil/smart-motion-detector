@@ -3,12 +3,15 @@ import multiprocessing
 import subprocess
 import time
 import gpiozero as GPIO
-
+from integrations.blynk_integration import start_blynk, motion_triggered
 
 def run_script(script_path):
     subprocess.run(["python3", script_path])
 
 def main():
+
+    print("Initializing Blynk...")
+    start_blynk()
     # Step 1: Arm the motion sensor
     print("Arming the motion sensor...")
     # arm_motion_sensor()
