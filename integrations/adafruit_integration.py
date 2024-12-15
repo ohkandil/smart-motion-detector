@@ -2,9 +2,11 @@ import zmq
 from Adafruit_IO import Client, RequestError
 
 # Adafruit IO Configuration
-with open("/home/iot/Documents/adafruitio_key.txt", "r") as key_file:
-    ADAFRUIT_IO_KEY = key_file.readline().strip()
-    ADAFRUIT_IO_USERNAME = key_file.readline().strip()  # Replace with your Adafruit IO username
+with open("/home/iot/Documents/adafruitio_key.txt", "r") as file:
+    ADAFRUIT_IO_KEY = file.readline().strip()
+    ADAFRUIT_IO_USERNAME = file.readline().strip()  # Replace with your Adafruit IO username
+
+
 aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # Define feed names for motion sensors
@@ -49,7 +51,7 @@ def adafruit_integration():
     # Initialize ZeroMQ subscriber
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
-    socket.connect("tcp://localhost:5555")  # Connect to the motion detector's publisher
+    socket.connect("tcp://localhost:5555")  # Connect to the motion detector's publishers
     socket.subscribe("")  # Subscribe to all messages
 
     print("Adafruit integration running...")

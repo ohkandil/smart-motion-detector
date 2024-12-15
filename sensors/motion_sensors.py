@@ -3,7 +3,7 @@ from gpiozero import LED, MotionSensor
 from time import sleep
 
 # Create objects to refer to the LED and the PIR sensor
-pir = MotionSensor(17, pull_up=False)  # Use pull-down resistor for the PIR sensor
+# pir = MotionSensor(17, pull_up=False)  # Use pull-down resistor for the PIR sensor
 
 # Control variables
 motion_sensor_status = False
@@ -33,14 +33,16 @@ def motion_detector():
     print("Motion detector running...")
 
     while True:
+        pir = MotionSensor(17, pull_up=False)
         if motion_sensor_status and pir.motion_detected:
-            print("Motion detected! Publishing event...")
             socket.send_json({"sensor": 17, "state": "motion_detected"})
+            print("Motion detected! Publishing event...")
             sleep(1)
   # Delay to avoid flooding the message queue
         else:
             sleep(0.1)
-        #exit()  # Check again quickly
+        pir.close()
+ # Check again quickly
 
 
 if __name__ == "__main__":
