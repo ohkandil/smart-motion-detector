@@ -3,7 +3,7 @@ import subprocess
 import time
 from history_logging.log_creation import setup_logger, log_motion_event
 from sensors.motion_sensors import arm_motion_sensor
-from integrations.blynk_integration import start_blynk, motiontriggered
+from integrations.blynk_integration import start_blynk
 
 def run_script(script_path):
     subprocess.run(["python3", script_path])
