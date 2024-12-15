@@ -2,8 +2,9 @@ import zmq
 from Adafruit_IO import Client, RequestError
 
 # Adafruit IO Configuration
-ADAFRUIT_IO_KEY = "aio_IYwQ97XllAcuVvA8otJMBH7ghfnL"  # Replace with your Adafruit IO key
-ADAFRUIT_IO_USERNAME = "Sherifhameed30"  # Replace with your Adafruit IO username
+with open("/home/iot/Documents/adafruitio_key.txt", "r") as key_file:
+    ADAFRUIT_IO_KEY = key_file.readline().strip()
+    ADAFRUIT_IO_USERNAME = key_file.readline().strip()  # Replace with your Adafruit IO username
 aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # Define feed names for motion sensors

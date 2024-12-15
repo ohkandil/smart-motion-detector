@@ -5,8 +5,9 @@ from datetime import datetime
 import os
 
 # Email Configuration
-EMAIL = "iot450702@gmail.com"
-PASSWORD = "xign cwhh wjho bzyi"
+with open('/home/iot/Documents/email_cred.txt', 'r') as file:
+    EMAIL = file.readline().strip()
+    PASSWORD = file.readline().strip()
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 last_event_time = None
