@@ -1,10 +1,12 @@
 from BlynkLib import Blynk
 import threading
 
-BLYNK_TEMPLATE_ID = "TMPL2SeEV2-DB"
+
 BLYNK_TEMPLATE_NAME = "Motion Detection"
 
-BLYNK_AUTH = "D0axc7KXGn_2-QqsszyJBEf9QjkvCYQi"
+with open("/home/iot/Documents/blynk_key.txt", "r") as file:
+    BLYNK_AUTH = file.readline().strip()
+    BLYNK_TEMPLATE_ID = file.readline().strip()
 blynk = Blynk(BLYNK_AUTH)
 
 
