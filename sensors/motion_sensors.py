@@ -35,6 +35,7 @@ def motion_detector():
                 led.off()
                 sleep(2.5)
             else:
+                print("No motion detected")
                 sleep(0.1)  # Check again quickly
 
 if __name__ == "__main__":
