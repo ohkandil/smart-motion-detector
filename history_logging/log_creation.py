@@ -1,28 +1,31 @@
-import logging
+import csv
+from datetime import datetime
+from gpiozero import LED, MotionSensor
+from time import sleep
 
-def setup_logger(log_file):
-    logger = logging.getLogger('motion_detector')
-    logger.setLevel(logging.INFO)
-    
-    # Create a file handler
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(logging.INFO)
-    
-    # Create a logging format
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
-    handler.setFormatter(formatter)
-    
-    # Add the handlers to the logger
-    logger.addHandler(handler)
-    
-    return logger
+# Motion sensor setup
+led_status = LED(15)
+pir = MotionSensor(17, pull_up=False)
 
-def log_motion_event(logger, event):
-    logger.info(event)
+# CSV log file
+LOG_FILE = "motion_data.csv"
+
+# Log motion events
+def log_motion_event(sensor_id, state):
+    with open(LOG_FILE, mode='a') as file:
+        writer = csv.writer(file)
+        writer.writerow([datetime.now(), sensor_id, state])
+    print(f"Logged: {datetime.now()} - Sensor {sensor_id} - {state}")
+
+# Detect motion and log it
+def motion_detector():
+    while True:
+        if pir.motion_detected:
+            log_motion_event(sensor_id=17, state="motion_detected")
+        else:
+            log_motion_event(sensor_id=17, state="no_motion")
+        sleep(1)  # Check every second
 
 if __name__ == "__main__":
-    log_file = 'motion_events.log'
-    logger = setup_logger(log_file)
-    
-    # Example usage
-    log_motion_event(logger, "Motion detected.")
+    print("Motion detector running...")
+    motion_detector()
