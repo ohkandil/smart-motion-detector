@@ -1,5 +1,6 @@
 import zmq
-from blynklib import Blynk
+import blynklib
+# from blynklib import Blynk
 import threading
 
 
@@ -9,12 +10,13 @@ with open("/home/iot/Documents/blynk_key.txt", "r") as file:
     BLYNK_AUTH = file.readline().strip()
     BLYNK_TEMPLATE_ID = file.readline().strip()
 
-blynk = Blynk(BLYNK_AUTH)
+blynk = blynklib.Blynk(BLYNK_AUTH)
 
 def blynk_thread():
     """Runs the Blynk loop in a separate thread."""
     print("Starting Blynk service...")
     blynk.run()
+    blynk.connect()
 
 def motion_triggered():
     """
@@ -26,6 +28,7 @@ def motion_triggered():
     blynk.notify("Motion detected in your monitored area!")
 
 # Handle the virtual pin event manually
+# @blynk.on("V0")
 def v0_write_handler(pin, value):
     """Handles writes to virtual pin V0."""
     if pin == 'V0':
