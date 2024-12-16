@@ -1,7 +1,7 @@
 import multiprocessing
 import subprocess
 import time
-from history_logging.log_creation import setup_logger, log_motion_event
+# from history_logging.log_creation import setup_logger, log_motion_event
 from sensors.motion_sensors import arm_motion_sensor
 from integrations.blynk_integration import start_blynk
 
@@ -13,13 +13,13 @@ def main():
     start_blynk()
     
     # Setup logger
-    log_file = 'motion_events.log'
-    logger = setup_logger(log_file)
+    # log_file = 'motion_events.log'
+    # logger = setup_logger(log_file)
 
     # Step 1: Arm the motion sensor
-    log_motion_event(logger, "Arming the motion sensor...")
+    # log_motion_event(logger, "Arming the motion sensor...")
     print("Arming the motion sensor...")
-    arm_motion_sensor()
+    # arm_motion_sensor()
 
     # Step 2: Create separate processes for each script
     scripts = [
@@ -37,7 +37,7 @@ def main():
         
         process = multiprocessing.Process(target=run_script, args=(script,))
         processes.append(process)
-        log_motion_event(logger, f"Starting script: {script}")
+        # log_motion_event(logger, f"Starting script: {script}")
         print(f"Starting script: {script}")
         process.start()
         time.sleep(1)  # 1-second delay between starting scripts

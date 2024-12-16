@@ -3,6 +3,8 @@ from email.mime.text import MIMEText
 import zmq
 from datetime import datetime
 import os
+import time
+from gpiozero import LED
 
 # Email Configuration
 with open('/home/iot/Documents/email_cred.txt', 'r') as file:
@@ -13,7 +15,7 @@ SMTP_PORT = 587
 last_event_time = None
 
 print(f"Process ID: {os.getpid()}")
-
+# process id
 
 # Function to send an email when motion is detected
 def send_email_notification(sensor_id):
@@ -52,10 +54,13 @@ def notify_via_email():
 
     while True:
         event = socket.recv_json()  # Receive a motion event
+
         print(f"Received event: {event}")
         send_email_notification(sensor_id=event['sensor'])
+
         exit()
 
 
 if __name__ == "__main__":
+    # led = LED(23)  # Use GPIO 23 for the LED
     notify_via_email()  # Start listening for motion events
