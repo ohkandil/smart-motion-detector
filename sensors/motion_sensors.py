@@ -2,7 +2,6 @@ import zmq
 from gpiozero import MotionSensor, LED
 from time import sleep
 
-
   # Use GPIO 17 for the PIR sensor
 
 motion_sensor_status = False
