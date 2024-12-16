@@ -1,6 +1,5 @@
 import zmq
 import blynklib
-# from blynklib import Blynk
 import threading
 
 
