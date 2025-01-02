@@ -11,7 +11,8 @@ aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 # Define feed names for sensors
 SENSOR_FEEDS = {
-    18: "iot-ultrasonic-feed"  # Feed for the ultrasonic sensor
+    18: "iot-ultrasonic-feed-1",  # Feed for the first ultrasonic sensor
+    22: "iot-ultrasonic-feed-2"   # Feed for the second ultrasonic sensor
 }
 
 # Ensure all feeds exist on Adafruit IO
@@ -43,10 +44,10 @@ def send_to_adafruit(sensor_id, state):
     print(f"Sent data to {feed_name}: {state}")
 
 # Function to send ultrasonic sensor data to Adafruit IO
-def send_ultrasonic_data(distance):
-    feed_name = SENSOR_FEEDS.get(18)  # Assuming 18 is the ID for the ultrasonic sensor
+def send_ultrasonic_data(sensor_id, distance):
+    feed_name = SENSOR_FEEDS.get(sensor_id)
     if not feed_name:
-        print(f"Unknown sensor ID 18. Skipping Adafruit IO update.")
+        print(f"Unknown sensor ID {sensor_id}. Skipping Adafruit IO update.")
         return
     aio.send(feed_name, distance)
     print(f"Sent ultrasonic data to {feed_name}: {distance}")

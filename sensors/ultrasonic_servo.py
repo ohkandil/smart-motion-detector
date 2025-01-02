@@ -1,5 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+import zmq
+import json
 
 # GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -38,6 +40,11 @@ servo_2.start(0)  # Initialization
 initial_angle_1 = 0
 initial_angle_2 = 0
 
+# Set up ZeroMQ context and publisher socket
+context = zmq.Context()
+socket = context.socket(zmq.PUB)
+socket.bind("tcp://*:5555")
+
 def distance(trigger, echo, num_samples=3):
     distances = []
     for _ in range(num_samples):
@@ -73,7 +80,7 @@ def set_servo_angle(servo, angle):
     time.sleep(0.3)
     servo.ChangeDutyCycle(0)
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     try:
         # Initialize servos to their initial angles
         set_servo_angle(servo_1, initial_angle_1)
@@ -98,6 +105,13 @@ if __name__ == '__main__':
             else:
                 set_servo_angle(servo_2, initial_angle_2)  # Rotate servo back to initial angle
                 GPIO.output(GPIO_LED_2, GPIO.LOW)  # Turn off LED 2
+
+            # Send distance data via ZeroMQ
+            data = {
+                "sensor_1": dist_1,
+                "sensor_2": dist_2
+            }
+            socket.send_json(data)
 
             time.sleep(0.1)  # Reduce the sleep time to improve responsiveness
 

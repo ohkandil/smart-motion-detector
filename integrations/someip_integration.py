@@ -1,5 +1,3 @@
-# SOME/IP example placeholder (requires external library setup)
-import someipy
 import zmq
 
 def send_someip():
@@ -13,3 +11,6 @@ def send_someip():
         event = socket.recv_json()
         # Add SOME/IP logic here
         print(f"Simulating SOME/IP send: {event}")
+
+if __name__ == "__main__":
+    send_someip()

@@ -53,7 +53,8 @@ def notify_via_email():
         event = socket.recv_json()  # Receive a motion event
 
         print(f"Received event: {event}")
-        send_email_notification(sensor_id=event['sensor'], distance=event['distance'])
+        send_email_notification(sensor_id=event['sensor_1'], distance=event['sensor_1'])
+        send_email_notification(sensor_id=event['sensor_2'], distance=event['sensor_2'])
 
 if __name__ == "__main__":
     notify_via_email()  # Start listening for motion events
