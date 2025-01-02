@@ -4,16 +4,14 @@ from Adafruit_IO import Client, RequestError
 # Adafruit IO Configuration
 with open("/home/iot/Documents/adafruitio_key.txt", "r") as file:
     ADAFRUIT_IO_KEY = file.readline().strip()
-    ADAFRUIT_IO_USERNAME = file.readline().strip()  # Replace with your Adafruit IO username
-
+    ADAFRUIT_IO_USERNAME = file.readline().strip() 
 
 aio = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
-# Define feed names for motion sensors
+# Define feed names for sensors
 SENSOR_FEEDS = {
-    17: "iot-motion-feed"
+    18: "iot-ultrasonic-feed"  # Feed for the ultrasonic sensor
 }
-
 
 # Ensure all feeds exist on Adafruit IO
 def initialize_feeds():
@@ -27,49 +25,20 @@ def initialize_feeds():
             print(f"Created feed: {feed_name}")
     print("All feeds are ready.")
 
-
-# Function to send motion data to Adafruit IO
+# Function to send sensor data to Adafruit IO
 def send_to_adafruit(sensor_id, state):
     feed_name = SENSOR_FEEDS.get(sensor_id)
     if not feed_name:
         print(f"Unknown sensor ID {sensor_id}. Skipping Adafruit IO update.")
         return
+    aio.send(feed_name, state)
+    print(f"Sent data to {feed_name}: {state}")
 
-    # Send state to Adafruit IO feed
-    try:
-        aio.send(feed_name, state)
-        print(f"Sent data to Adafruit IO: {feed_name} -> {state}")
-    except Exception as e:
-        print(f"Failed to send data to Adafruit IO for {feed_name}: {e}")
-
-
-# Subscribe to ZeroMQ events and forward to Adafruit IO
-def adafruit_integration():
-    # Initialize Adafruit IO feeds
-    initialize_feeds()
-
-    # Initialize ZeroMQ subscriber
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
-    socket.connect("tcp://localhost:5555")  # Connect to the motion detector's publishers
-    socket.subscribe("")  # Subscribe to all messages
-
-    print("Adafruit integration running...")
-    while True:
-        event = socket.recv_json()  # Receive a motion event
-        print(f"Received event: {event}")
-
-        # Forward the event data to Adafruit IO
-        sensor_id = event.get('sensor')
-        state = event.get('state')
-        if state == "motion_detected":
-            send_to_adafruit(sensor_id, "motion_detected")
-        
-        elif state == "no_motion":
-            send_to_adafruit(sensor_id, "no_motion")
-        exit()
-       
-
-
-if __name__ == "__main__":
-    adafruit_integration()  # Start the Adafruit integration
+# Function to send ultrasonic sensor data to Adafruit IO
+def send_ultrasonic_data(distance):
+    feed_name = SENSOR_FEEDS.get(18)  # Assuming 18 is the ID for the ultrasonic sensor
+    if not feed_name:
+        print(f"Unknown sensor ID 18. Skipping Adafruit IO update.")
+        return
+    aio.send(feed_name, distance)
+    print(f"Sent ultrasonic data to {feed_name}: {distance}")

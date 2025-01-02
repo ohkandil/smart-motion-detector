@@ -1,50 +1,31 @@
 import multiprocessing
 import subprocess
 import time
-# from history_logging.log_creation import setup_logger, log_motion_event
-from sensors.motion_sensors import arm_motion_sensor
-from integrations.blynk_integration import start_blynk
+from sensors.ultrasonic_servo import distance
+from integrations.blynk_integration import blynk_thread
+from integrations.adafruit_integration import initialize_feeds, send_ultrasonic_data
+from integrations.blynk_integration import send_ultrasonic_data_to_blynk
+import threading
 
 def run_script(script_path):
     subprocess.run(["python3", script_path])
 
 def main():
-    print("Initializing Blynk...")
-    start_blynk()
-    
-    # Setup logger
-    # log_file = 'motion_events.log'
-    # logger = setup_logger(log_file)
+    print("Initializing Adafruit IO feeds...")
+    initialize_feeds()
 
-    # Step 1: Arm the motion sensor
-    # log_motion_event(logger, "Arming the motion sensor...")
-    print("Arming the motion sensor...")
-    # arm_motion_sensor()
+    print("Starting Blynk service...")
+    threading.Thread(target=blynk_thread).start()
 
-    # Step 2: Create separate processes for each script
-    scripts = [
-        "sensors/motion_sensors.py",
-        "notifications/email_notifier.py",
-        "integrations/adafruit_integration.py",
-        "integrations/blynk_integration.py"
-    ]
-
-    processes = []
-
-    for script in scripts:
-        # Reset GPIO pins before starting each script
-
-        
-        process = multiprocessing.Process(target=run_script, args=(script,))
-        processes.append(process)
-        # log_motion_event(logger, f"Starting script: {script}")
-        print(f"Starting script: {script}")
-        process.start()
-        time.sleep(1)  # 1-second delay between starting scripts
-
-    # Wait for all processes to complete
-    for process in processes:
-        process.join()
+    try:
+        while True:
+            dist = distance()
+            print(f"Measured Distance = {dist:.1f} cm")
+            send_ultrasonic_data(dist)  # Send data to Adafruit IO
+            send_ultrasonic_data_to_blynk(dist)  # Send data to Blynk
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Measurement stopped by User")
 
 if __name__ == "__main__":
     main()
