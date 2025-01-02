@@ -1,5 +1,6 @@
 import zmq
 from Adafruit_IO import Client, RequestError
+import time
 
 # Adafruit IO Configuration
 with open("/home/iot/Documents/adafruitio_key.txt", "r") as file:
@@ -17,13 +18,20 @@ SENSOR_FEEDS = {
 def initialize_feeds():
     print("Initializing Adafruit IO feeds...")
     for sensor_id, feed_name in SENSOR_FEEDS.items():
-        try:
-            # Check if the feed exists, if not, create it
-            aio.feeds(feed_name)
-        except RequestError:
-            aio.create_feed({'name': feed_name})
-            print(f"Created feed: {feed_name}")
-    print("All feeds are ready.")
+        for attempt in range(3):  # Retry up to 3 times
+            try:
+                # Check if the feed exists, if not, create it
+                aio.feeds(feed_name)
+                print(f"Feed {feed_name} is ready.")
+                break
+            except RequestError as e:
+                print(f"Error initializing feed {feed_name}: {e}")
+                if attempt < 2:
+                    print("Retrying...")
+                    time.sleep(5)  # Wait for 5 seconds before retrying
+                else:
+                    print("Failed to initialize feed after 3 attempts. Skipping.")
+                    break
 
 # Function to send sensor data to Adafruit IO
 def send_to_adafruit(sensor_id, state):
