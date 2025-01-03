@@ -1,44 +1,92 @@
-from blynkapi import Blynk
+import blynklib
+import RPi.GPIO as GPIO
+import threading
 import time
+from sensors.ultrasonic_servo import set_servo_angle, initial_angle_1, initial_angle_2, servo_1, servo_2, GPIO_TRIGGER_1, GPIO_ECHO_1, GPIO_TRIGGER_2, GPIO_ECHO_2, distance
 
-# Define your Blynk authentication token
-BLYNK_AUTH_TOKEN = '8YWOIEcxtxr_tKs_bcX5HJ8Ibz-y-gXJ'
+BLYNK_TEMPLATE_NAME = "Raspberry pi"
 
-# Set up Blynk instance
-blynk = Blynk(BLYNK_AUTH_TOKEN)
+with open("/home/iot/Documents/blynk_key.txt", "r") as file:
+    BLYNK_AUTH = file.readline().strip()
+    BLYNK_TEMPLATE_ID = file.readline().strip()
 
-# Virtual pins for ultrasonic data (for sensor readings)
-VIRTUAL_PIN_SENSOR_1 = 1  # Virtual pin for sensor 1 distance data
-VIRTUAL_PIN_SENSOR_2 = 2  # Virtual pin for sensor 2 distance data
+blynk = blynklib.Blynk(BLYNK_AUTH)
 
-# Digital pin assignments for Blynk (used to represent LED status)
-BLYNK_LED_PIN_1 = 1  # Digital pin for LED 1 (automatically switches between 1 and 0)
-BLYNK_LED_PIN_2 = 2  # Digital pin for LED 2 (automatically switches between 1 and 0)
+# Flags to track manual control
+manual_control_1 = False
+manual_control_2 = False
 
-# Function to send ultrasonic data and control LEDs automatically via Blynk
-def send_ultrasonic_data_to_blynk(dist_1, dist_2):
-    try:
-        # Sending ultrasonic data to Blynk Virtual Pins
-        blynk.virtual_write(VIRTUAL_PIN_SENSOR_1, dist_1)  # Write to virtual pin for sensor 1
-        blynk.virtual_write(VIRTUAL_PIN_SENSOR_2, dist_2)  # Write to virtual pin for sensor 2
-        print(f"Sent ultrasonic data to Blynk - Sensor 1: {dist_1} cm, Sensor 2: {dist_2} cm")
+# Virtual pins for Blynk buttons
+VIRTUAL_PIN_SERVO_1 = 1
+VIRTUAL_PIN_SERVO_2 = 2
 
-        # Automatically update LED status based on distance
-        led_1_status = 1 if dist_1 <= 10 else 0  # LED 1 on if distance <= 10 cm
-        led_2_status = 1 if dist_2 <= 10 else 0  # LED 2 on if distance <= 10 cm
-
-        # Send LED status to Blynk digital pins (1 = ON, 0 = OFF)
-        blynk.digital_write(BLYNK_LED_PIN_1, led_1_status)  # LED 1 control
-        blynk.digital_write(BLYNK_LED_PIN_2, led_2_status)  # LED 2 control
-        print(f"Sent LED status to Blynk - LED 1: {led_1_status}, LED 2: {led_2_status}")
-    except Exception as e:
-        print(f"Error sending data to Blynk: {e}")
-
-# Blynk thread to handle Blynk communication
-def blynk_thread():
+def handle_ultrasonic_control():
+    """Automatically control servo motors based on ultrasonic sensor readings."""
     while True:
-        try:
-            blynk.run()  # Keep Blynk connection alive and process events
-            time.sleep(0.1)
-        except KeyboardInterrupt:
-            break
+        global manual_control_1, manual_control_2
+
+        # Ultrasonic sensor 1 control
+        if not manual_control_1:
+            dist_1 = distance(GPIO_TRIGGER_1, GPIO_ECHO_1)
+            if dist_1 <= 10:
+                set_servo_angle(servo_1, 90)  # Rotate servo to 90 degrees
+            else:
+                set_servo_angle(servo_1, initial_angle_1)  # Return to initial angle
+
+        # Ultrasonic sensor 2 control
+        if not manual_control_2:
+            dist_2 = distance(GPIO_TRIGGER_2, GPIO_ECHO_2)
+            if dist_2 <= 10:
+                set_servo_angle(servo_2, 90)  # Rotate servo to 90 degrees
+            else:
+                set_servo_angle(servo_2, initial_angle_2)  # Return to initial angle
+
+        time.sleep(0.1)
+
+# Blynk button handlers
+@blynk.VIRTUAL_WRITE(VIRTUAL_PIN_SERVO_1)
+def control_servo_1(value):
+    """Manually control servo motor 1."""
+    global manual_control_1
+    if int(value[0]) == 1:
+        manual_control_1 = True
+        set_servo_angle(servo_1, 90)
+        print("Manual control ON for Servo 1")
+    else:
+        manual_control_1 = False
+        set_servo_angle(servo_1, initial_angle_1)
+        print("Manual control OFF for Servo 1")
+
+@blynk.VIRTUAL_WRITE(VIRTUAL_PIN_SERVO_2)
+def control_servo_2(value):
+    """Manually control servo motor 2."""
+    global manual_control_2
+    if int(value[0]) == 1:
+        manual_control_2 = True
+        set_servo_angle(servo_2, 90)
+        print("Manual control ON for Servo 2")
+    else:
+        manual_control_2 = False
+        set_servo_angle(servo_2, initial_angle_2)
+        print("Manual control OFF for Servo 2")
+
+def blynk_thread():
+    """Run the Blynk event loop."""
+    blynk.run()
+
+# Main script execution
+if __name__ == '__main__':
+    try:
+        # Initialize servos to their initial angles
+        set_servo_angle(servo_1, initial_angle_1)
+        set_servo_angle(servo_2, initial_angle_2)
+
+        # Start the ultrasonic control thread
+        threading.Thread(target=handle_ultrasonic_control, daemon=True).start()
+
+        # Start the Blynk thread
+        blynk_thread()
+
+    except KeyboardInterrupt:
+        print("Exiting program.")
+        GPIO.cleanup()

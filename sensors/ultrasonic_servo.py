@@ -3,47 +3,9 @@ import time
 import zmq
 import json
 
-# GPIO Mode (BOARD / BCM)
-GPIO.setmode(GPIO.BCM)
 
-# set GPIO Pins for the first ultrasonic sensor and servo motor
-GPIO_TRIGGER_1 = 18
-GPIO_ECHO_1 = 24
-GPIO_SERVO_1 = 25
-GPIO_LED_1 = 23
 
-# set GPIO Pins for the second ultrasonic sensor and servo motor
-GPIO_TRIGGER_2 = 22
-GPIO_ECHO_2 = 27
-GPIO_SERVO_2 = 17
-GPIO_LED_2 = 4
 
-# set GPIO direction (IN / OUT)
-GPIO.setup(GPIO_TRIGGER_1, GPIO.OUT)
-GPIO.setup(GPIO_ECHO_1, GPIO.IN)
-GPIO.setup(GPIO_SERVO_1, GPIO.OUT)
-GPIO.setup(GPIO_LED_1, GPIO.OUT)
-
-GPIO.setup(GPIO_TRIGGER_2, GPIO.OUT)
-GPIO.setup(GPIO_ECHO_2, GPIO.IN)
-GPIO.setup(GPIO_SERVO_2, GPIO.OUT)
-GPIO.setup(GPIO_LED_2, GPIO.OUT)
-
-# Set up PWM for the servo motors
-servo_1 = GPIO.PWM(GPIO_SERVO_1, 50)  # 50Hz frequency
-servo_1.start(0)  # Initialization
-
-servo_2 = GPIO.PWM(GPIO_SERVO_2, 50)  # 50Hz frequency
-servo_2.start(0)  # Initialization
-
-# Initial angles for the servo motors
-initial_angle_1 = 0
-initial_angle_2 = 0
-
-# Set up ZeroMQ context and publisher socket
-context = zmq.Context()
-socket = context.socket(zmq.PUB)
-socket.bind("tcp://*:5555")
 
 def distance(trigger, echo, num_samples=3):
     distances = []
@@ -81,6 +43,47 @@ def set_servo_angle(servo, angle):
     servo.ChangeDutyCycle(0)
 
 if __name__ == '__main__': 
+    # GPIO Mode (BOARD / BCM)
+    GPIO.setmode(GPIO.BCM)
+
+    # set GPIO Pins for the first ultrasonic sensor and servo motor
+    GPIO_TRIGGER_1 = 18
+    GPIO_ECHO_1 = 24
+    GPIO_SERVO_1 = 25
+    GPIO_LED_1 = 23
+
+    # set GPIO Pins for the second ultrasonic sensor and servo motor
+    GPIO_TRIGGER_2 = 22
+    GPIO_ECHO_2 = 27
+    GPIO_SERVO_2 = 17
+    GPIO_LED_2 = 4
+
+    # set GPIO direction (IN / OUT)
+    GPIO.setup(GPIO_TRIGGER_1, GPIO.OUT)
+    GPIO.setup(GPIO_ECHO_1, GPIO.IN)
+    GPIO.setup(GPIO_SERVO_1, GPIO.OUT)
+    GPIO.setup(GPIO_LED_1, GPIO.OUT)
+
+    GPIO.setup(GPIO_TRIGGER_2, GPIO.OUT)
+    GPIO.setup(GPIO_ECHO_2, GPIO.IN)
+    GPIO.setup(GPIO_SERVO_2, GPIO.OUT)
+    GPIO.setup(GPIO_LED_2, GPIO.OUT)
+
+    # Set up PWM for the servo motors
+    servo_1 = GPIO.PWM(GPIO_SERVO_1, 50)  # 50Hz frequency
+    servo_1.start(0)  # Initialization
+
+    servo_2 = GPIO.PWM(GPIO_SERVO_2, 50)  # 50Hz frequency
+    servo_2.start(0)  # Initialization
+
+    # Initial angles for the servo motors
+    initial_angle_1 = 0
+    initial_angle_2 = 0
+
+    # Set up ZeroMQ context and publisher socket
+    context = zmq.Context()
+    socket = context.socket(zmq.PUB)
+    socket.bind("tcp://*:5555")
     try:
         # Initialize servos to their initial angles
         set_servo_angle(servo_1, initial_angle_1)
@@ -120,3 +123,4 @@ if __name__ == '__main__':
         servo_1.stop()
         servo_2.stop()
         GPIO.cleanup()
+
